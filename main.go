@@ -4,14 +4,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
+func setupRouter() *gin.Engine {
 	r := gin.Default()
 
-	r.GET("/", func(c *gin.Context) {
+	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"response": "pong",
 		})
 	})
 
-	r.RunTLS(":8080", "certs/secure-proxy-server-cert.pem", "certs/key.pem")
+	return r
+}
+
+func main() {
+	router := setupRouter()
+
+	err := router.RunTLS(":8443", "certs/secure-proxy-server-cert.pem", "certs/key.pem")
+	if err != nil {
+		panic(err)
+	}
 }
