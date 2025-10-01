@@ -13,6 +13,13 @@ func setupRouter() *gin.Engine {
 		})
 	})
 
+	r.GET("/set_cookie", func(c *gin.Context) {
+		c.SetCookie("SECURE_PROXY_SESSION", "E364EEAE-8F50-4B6E-BB9B-E7F56A27160C", 60*60*24, "/", ".secure-proxy.lan", true, true)
+		c.JSON(200, gin.H{
+			"cookie_val": "success",
+		})
+	})
+
 	return r
 }
 
