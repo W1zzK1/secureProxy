@@ -34,6 +34,31 @@ func Test_validateTOTP(t *testing.T) {
 	println("Validation passed :", validationResult)
 }
 
+/* ERROR
+# github.com/valkey-io/valkey-glide/go/v2/config
+..\..\..\go\pkg\mod\github.com\valkey-io\valkey-glide\go\v2@v2.1.0\config\pubsub_subscription_config.go:11:43: undefined: models.PubSubMessage
+*/
+//func Test_valkeySlide(t *testing.T) {
+//	host := "localhost"
+//	port := 6379
+//
+//	config := config.NewClientConfiguration().
+//		WithAddress(&config.NodeAddress{Host: host, Port: port})
+//
+//	client, err := glide.NewClient(config)
+//	if err != nil {
+//		panic(err)
+//	}
+//	defer client.Close()
+//
+//	context := context.Background()
+//	res, err := client.Ping(context)
+//	if err != nil {
+//		panic(err)
+//	}
+//	fmt.Println(res) // PONG
+//}
+
 func Test_valkey(t *testing.T) {
 	client, err := valkeyService.CreateClient()
 	if err != nil {

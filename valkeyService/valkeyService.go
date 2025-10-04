@@ -31,7 +31,6 @@ func CreateClient() (valkey.Client, error) {
 // Общий паттерн:
 //result := client.Do(ctx, client.B().Команда().Параметры().Build()).МетодРазбора()
 
-// Set сохраняет значение по ключу
 func (s *ValkeyService) Set(ctx context.Context, key, value string) error {
 	err := s.client.Do(ctx, s.client.B().Set().Key(key).Value(value).Build()).Error()
 	if err != nil {
@@ -48,7 +47,7 @@ func (s *ValkeyService) SetValue(c *gin.Context) {
 	value := c.Query("value")
 
 	if key == "" || value == "" {
-		c.JSON(400, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "key or value is empty",
 		})
 		return
@@ -56,7 +55,7 @@ func (s *ValkeyService) SetValue(c *gin.Context) {
 
 	err := s.Set(ctx, key, value)
 	if err != nil {
-		c.JSON(500, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "failed to set value for key " + key + " and value " + value + ": " + err.Error(),
 		})
 	}
