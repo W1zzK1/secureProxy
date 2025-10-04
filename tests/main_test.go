@@ -22,7 +22,7 @@ func Test_generateTOTP(t *testing.T) {
 }
 
 func Test_validateTOTP(t *testing.T) {
-	secret := "4I7VBTB2EH4DMGKINHTFAY2VDTKO543V"
+	secret := "PDSGYV7LJSFSPPRTSJZCBHVV3RHXCKZV"
 
 	code, err := totp.GenerateCode(secret, time.Now())
 	if err != nil {
@@ -35,17 +35,17 @@ func Test_validateTOTP(t *testing.T) {
 }
 
 /* ERROR
-# github.com/valkey-io/valkey-glide/go/v2/config
-..\..\..\go\pkg\mod\github.com\valkey-io\valkey-glide\go\v2@v2.1.0\config\pubsub_subscription_config.go:11:43: undefined: models.PubSubMessage
+# github.com/valkey-io/valkey-glide/go/v2/appConfig
+..\..\..\go\pkg\mod\github.com\valkey-io\valkey-glide\go\v2@v2.1.0\appConfig\pubsub_subscription_config.go:11:43: undefined: models.PubSubMessage
 */
 //func Test_valkeySlide(t *testing.T) {
 //	host := "localhost"
 //	port := 6379
 //
-//	config := config.NewClientConfiguration().
-//		WithAddress(&config.NodeAddress{Host: host, Port: port})
+//	appConfig := appConfig.NewClientConfiguration().
+//		WithAddress(&appConfig.NodeAddress{Host: host, Port: port})
 //
-//	client, err := glide.NewClient(config)
+//	client, err := glide.NewClient(appConfig)
 //	if err != nil {
 //		panic(err)
 //	}

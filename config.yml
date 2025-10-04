@@ -1,0 +1,14 @@
+authDomain:
+  auth.secure-proxy.lan
+sessions:
+  cookieDomain: .secure-proxy.lan
+  cookieName: SECURE_PROXY_SESSION
+  ttlSeconds: 180
+users:
+  - username: user1
+    totpSecret: OWX2WB6TEUBMPYMSXML4B2YKFEEQ5FYI
+    availableDomains:
+      - site1.secure-proxy.lan
+upstreams:
+  - host: site1.secure-proxy.lan # должен быть поддоменом .secure-proxy.lan, чтобы мы могли увидеть куку
+    destination: http://127.0.0.1:8181 # куда проксировать успешно аутентифицированные запросы

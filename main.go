@@ -5,10 +5,12 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"secureProxy/middleware"
 )
 
 func setupRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(middleware.ProxyMiddleware)
 
 	getGroup := r.Group("/")
 	{
