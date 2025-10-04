@@ -1,10 +1,11 @@
 module secureProxy
 
-go 1.25.1
+go 1.25
 
 require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/pquerna/otp v1.5.0
+	github.com/valkey-io/valkey-go v1.0.66
 )
 
 require (
