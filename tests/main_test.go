@@ -68,11 +68,13 @@ func Test_valkey(t *testing.T) {
 	defer client.Close()
 
 	ctx := context.Background()
-	valkeyService.Set(ctx, "nickname", "w1zzk1")
-	value, err := valkeyService.Get(ctx, "nickname")
+	usernameValue := "vr.gorbunov"
+	valkeyService.Set(ctx, "username", usernameValue)
+	value, err := valkeyService.Get(ctx, "username")
 	if err != nil {
 		return
 	}
 	println(value)
+	println(value == usernameValue)
 
 }
