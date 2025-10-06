@@ -22,9 +22,6 @@ func ProxyMiddleware(c *gin.Context) {
 	if host == config.AuthDomain {
 		log.Println("AuthDomain request was accepted")
 		proxy.HandleAuthDomain(c, valkeyServ)
-		c.JSON(http.StatusOK, gin.H{
-			"loginStatus": "success",
-		})
 		//c.Next()
 		return
 	}
@@ -70,7 +67,7 @@ func proxyToUpstream(c *gin.Context, host string) {
 
 func redirectToAuth(c *gin.Context) {
 	authenticatedRedirectUrl := "https://" + c.Request.Host + c.Request.RequestURI
-	authUrl := "https://" + config.AuthDomain + "/auth?redirectUrl=" + url.QueryEscape(authenticatedRedirectUrl)
+	authUrl := "https://" + config.AuthDomain + ":8443/auth?redirectUrl=" + url.QueryEscape(authenticatedRedirectUrl)
 	c.Redirect(http.StatusFound, authUrl)
 }
 
@@ -83,7 +80,10 @@ func proxyRequest(upstream *appConfig.Upstream, c *gin.Context) {
 
 	proxy := httputil.NewSingleHostReverseProxy(upstreamUrl)
 	proxy.Director = func(req *http.Request) {
-		req.URL = upstreamUrl
+		req.URL.Scheme = upstreamUrl.Scheme
+		req.URL.Host = upstreamUrl.Host
+		req.URL.Path = upstreamUrl.Path
+		req.URL.RawQuery = c.Request.URL.RawQuery
 		if user, exists := c.Get("authenticated_user"); exists {
 			req.Header.Set("X-Forwarded-User", user.(string))
 		}

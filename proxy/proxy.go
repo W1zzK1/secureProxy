@@ -12,6 +12,7 @@ func HandleAuthDomain(c *gin.Context, valkeyServ *services.ValkeyService) {
 		c.HTML(http.StatusOK, "login.html", gin.H{})
 		return
 	}
+
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 
@@ -27,10 +28,10 @@ func HandleAuthDomain(c *gin.Context, valkeyServ *services.ValkeyService) {
 		})
 		return
 	}
-	secret := services.GenerateTOTP(c, email)
+
 	sessionCookie := SetProxyCookie(c)
-	valkeyServ.Set(c, "session:"+sessionCookie, secret)
-	valkeyServ.Expire(c, email, 1800)
+	valkeyServ.Set(c, "session:"+sessionCookie, email)
+	valkeyServ.Expire(c, "session:"+sessionCookie, 1800)
 }
 
 func SetProxyCookie(c *gin.Context) string {
