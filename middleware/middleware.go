@@ -1,37 +1,62 @@
 package middleware
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"secureProxy/appConfig"
-	"secureProxy/valkeyService"
+	"secureProxy/proxy"
+	"secureProxy/services"
 	"strings"
 )
 
 var config = appConfig.CreateConfig()
-var valkeyClient, _ = valkeyService.CreateClient()
-var valkeyServ = valkeyService.NewValkeyService(valkeyClient)
+var valkeyClient, _ = services.CreateClient()
+var valkeyServ = services.NewValkeyService(valkeyClient)
 
 func ProxyMiddleware(c *gin.Context) {
 	host := strings.Split(c.Request.Host, ":")[0]
 	if host == config.AuthDomain {
-		log.Println("request was accepted")
-		c.SetCookie("username", "vr.gorbunov", 60*60*24, "/", ".secure-proxy.lan", true, true)
-		cookie, _ := c.Cookie("username")
+		log.Println("AuthDomain request was accepted")
+		proxy.HandleAuthDomain(c, valkeyServ)
 		c.JSON(http.StatusOK, gin.H{
-			"cookieValue": cookie,
+			"loginStatus": "success",
 		})
-		valkeyServ.Set(c, "username", "vr.gorbunov")
-		c.Next()
+		//c.Next()
 		return
 	}
 
-	c.Abort()
-	getUserName(c)
+	if !checkAuthentication(c) {
+		return
+	}
 
+	proxyToUpstream(c, host)
+}
+
+func checkAuthentication(c *gin.Context) bool {
+	sessionCookie, err := c.Cookie("SECURE_PROXY_SESSION")
+	if err != nil {
+		redirectToAuth(c)
+		return false
+	}
+
+	email, err := valkeyServ.Get(c, "session:"+sessionCookie)
+	if err != nil {
+		redirectToAuth(c)
+		return false
+	}
+
+	valkeyServ.Expire(c, "session:"+sessionCookie, 1800) // 30 минут
+
+	c.Set("authenticated_user", email)
+
+	return true
+}
+
+func proxyToUpstream(c *gin.Context, host string) {
 	for i := range config.Upstreams {
 		upstream := &config.Upstreams[i]
 		if upstream.Host == host {
@@ -40,20 +65,7 @@ func ProxyMiddleware(c *gin.Context) {
 		}
 	}
 
-	//_ = c.AbortWithError(http.StatusUnauthorized, errors.New("unauthorized"))
-}
-
-func getUserName(c *gin.Context) string {
-	cookieUsername, err := c.Request.Cookie("username")
-	if err != nil {
-		log.Println("No username was found in cookie + ", err)
-	}
-	result, err := valkeyServ.Get(c, cookieUsername.Value)
-	if err != nil {
-		log.Println("No username was found in valkey + ", err)
-		redirectToAuth(c)
-	}
-	return result
+	c.AbortWithError(http.StatusNotFound, errors.New("upstream not found"))
 }
 
 func redirectToAuth(c *gin.Context) {
@@ -72,16 +84,9 @@ func proxyRequest(upstream *appConfig.Upstream, c *gin.Context) {
 	proxy := httputil.NewSingleHostReverseProxy(upstreamUrl)
 	proxy.Director = func(req *http.Request) {
 		req.URL = upstreamUrl
-		req.Header.Set("X-Forwarded-User", "vr.gorbunov")
+		if user, exists := c.Get("authenticated_user"); exists {
+			req.Header.Set("X-Forwarded-User", user.(string))
+		}
 	}
 	proxy.ServeHTTP(c.Writer, c.Request)
-}
-
-func renderAuthPage(c *gin.Context) {
-	// Отрендерить и вернуть html-страницу с формой для ввода логина и TOTP-кода
-}
-
-func validateTotp(c *gin.Context) {
-	// Проверить введенный TOTP. Если все ок - проставить куку и отредиректить на url, указанный в параметре redirectUrl.
-	// Если нет - отрендерить ту же форму что и в методе выше, но с сообщением об ошибке.
 }

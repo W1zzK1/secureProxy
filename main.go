@@ -10,6 +10,8 @@ import (
 
 func setupRouter() *gin.Engine {
 	r := gin.Default()
+	r.LoadHTMLGlob("templates/*.html")
+	r.Static("/static", "./static")
 	r.Use(middleware.ProxyMiddleware)
 
 	getGroup := r.Group("/")

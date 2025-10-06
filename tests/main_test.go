@@ -3,7 +3,7 @@ package tests
 import (
 	"context"
 	"github.com/pquerna/otp/totp"
-	"secureProxy/valkeyService"
+	"secureProxy/services"
 	"testing"
 	"time"
 )
@@ -60,11 +60,11 @@ func Test_validateTOTP(t *testing.T) {
 //}
 
 func Test_valkey(t *testing.T) {
-	client, err := valkeyService.CreateClient()
+	client, err := services.CreateClient()
 	if err != nil {
 		panic(err)
 	}
-	valkeyService := valkeyService.NewValkeyService(client)
+	valkeyService := services.NewValkeyService(client)
 	defer client.Close()
 
 	ctx := context.Background()

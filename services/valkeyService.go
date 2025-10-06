@@ -1,4 +1,4 @@
-package valkeyService
+package services
 
 import (
 	"context"
@@ -30,6 +30,14 @@ func CreateClient() (valkey.Client, error) {
 
 // Общий паттерн:
 //result := client.Do(ctx, client.B().Команда().Параметры().Build()).МетодРазбора()
+
+func (s *ValkeyService) Expire(ctx context.Context, key string, time int64) int64 {
+	res, err := s.client.Do(ctx, s.client.B().Expire().Key(key).Seconds(time).Build()).AsInt64()
+	if err != nil {
+		log.Printf("failed to expire valkey with key %s: %v", key, err)
+	}
+	return res
+}
 
 func (s *ValkeyService) Set(ctx context.Context, key, value string) error {
 	err := s.client.Do(ctx, s.client.B().Set().Key(key).Value(value).Build()).Error()
@@ -73,6 +81,7 @@ func (s *ValkeyService) Get(ctx context.Context, key string) (string, error) {
 	result, err := s.client.Do(ctx, s.client.B().Get().Key(key).Build()).ToString()
 	if err != nil {
 		log.Fatal("get failed")
+		return "", err
 	}
 	return result, nil
 }
