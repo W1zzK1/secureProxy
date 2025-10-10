@@ -11,18 +11,20 @@
     <h1>Proxy Login Page</h1>
     <h3>Enter your login credentials</h3>
 
-    <form method="post" action="/">
-        <label for="email">
-            Email:
-        </label>
-        <input type="email" id="email" name="email"
-               placeholder="Enter your email" required>
+    <form method="post" action="/auth">
+        <input type="hidden" name="redirectUrl" value="{{.RedirectUrl}}">
 
-        <label for="password">
-            Password:
+        <label for="Username">
+            Username:
         </label>
-        <input type="password" id="password" name="password"
-               placeholder="Enter your Password" required>
+        <input type="Username" id="Username" name="Username"
+               placeholder="Enter your Username" required>
+
+        <label for="TOTP">
+            TOTP:
+        </label>
+        <input type="TOTP" id="TOTP" name="TOTP"
+               placeholder="Enter your TOTP" required>
 
         <div class="wrap">
             <button type="submit">
@@ -30,6 +32,10 @@
             </button>
         </div>
     </form>
+
+    <div style="margin-top: 20px; padding: 10px; background: #f5f5f5;">
+        <small>Debug: redirectUrl = {{.RedirectUrl}}</small>
+    </div>
 
     <p>Not registered?
         <a href="#" style="text-decoration: none;">

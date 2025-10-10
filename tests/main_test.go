@@ -22,7 +22,7 @@ func Test_generateTOTP(t *testing.T) {
 }
 
 func Test_validateTOTP(t *testing.T) {
-	secret := "PDSGYV7LJSFSPPRTSJZCBHVV3RHXCKZV"
+	secret := "OWX2WB6TEUBMPYMSXML4B2YKFEEQ5FYI"
 
 	code, err := totp.GenerateCode(secret, time.Now())
 	if err != nil {
