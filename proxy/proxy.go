@@ -9,29 +9,28 @@ import (
 
 func HandleAuthDomain(c *gin.Context, valkeyServ *services.ValkeyService) {
 	if c.Request.Method == "GET" {
-		// Получаем redirectUrl из query параметра
 		redirectUrl := c.Query("redirectUrl")
 		c.HTML(http.StatusOK, "login.html", gin.H{
-			"RedirectUrl": redirectUrl, // Передаем в шаблон
+			"RedirectUrl": redirectUrl,
 		})
 		return
 	}
 
 	username := c.PostForm("Username")
 	totp := c.PostForm("TOTP")
-	redirectUrl := c.PostForm("redirectUrl") // Получаем из скрытого поля формы
+	redirectUrl := c.PostForm("redirectUrl")
 
 	if username == "" {
 		c.HTML(http.StatusBadRequest, "login.html", gin.H{
 			"Error":       "username is required",
-			"RedirectUrl": redirectUrl, // Сохраняем при ошибке
+			"RedirectUrl": redirectUrl,
 		})
 		return
 	}
 	if totp == "" {
 		c.HTML(http.StatusBadRequest, "login.html", gin.H{
 			"Error":       "Totp is required",
-			"RedirectUrl": redirectUrl, // Сохраняем при ошибке
+			"RedirectUrl": redirectUrl,
 		})
 		return
 	}
@@ -41,21 +40,18 @@ func HandleAuthDomain(c *gin.Context, valkeyServ *services.ValkeyService) {
 	if !validation {
 		c.HTML(http.StatusBadRequest, "login.html", gin.H{
 			"Error":       "Invalid TOTP",
-			"RedirectUrl": redirectUrl, // Сохраняем при ошибке
+			"RedirectUrl": redirectUrl,
 		})
 		return
 	}
 
-	// Создаем сессию
 	sessionCookie := "session:" + SetProxyCookie(c)
 	valkeyServ.Set(c, sessionCookie, username)
 	valkeyServ.Expire(c, sessionCookie, 1800)
 
-	// Используем правильный статус код для редиректа - 302
 	if redirectUrl != "" {
-		c.Redirect(http.StatusFound, redirectUrl) // http.StatusFound = 302
+		c.Redirect(http.StatusFound, redirectUrl)
 	} else {
-		// Fallback если redirectUrl пустой
 		c.Redirect(http.StatusFound, "https://site1.secure-proxy.lan:8443/")
 	}
 }
